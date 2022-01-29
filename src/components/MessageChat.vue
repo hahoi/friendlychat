@@ -34,7 +34,7 @@
         <div ref="cardBottomRef"></div>
       </q-card-section>
     </q-card>
-    <q-page-sticky expand position="bottom" class="z-top bg-white">
+    <q-page-sticky expand position="bottom" class="z-top bg-white q-pt-md">
       <div class="row">
         <q-input
           outlined
@@ -134,6 +134,12 @@ import {
 
 export default defineComponent({
   name: "message",
+  props: {
+    repaircaseId: {
+      type: String,
+      required: true,
+    },
+  },
 
   setup(props, context) {
     const router = useRouter();
@@ -331,9 +337,4 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass">
-.my-emoji
-  vertical-align: middle
-  height: 20em
-  width: 20em
-</style>
+<style></style>

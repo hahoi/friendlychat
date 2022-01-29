@@ -1,180 +1,23 @@
 <template>
-  <q-page class="">
-    <div class="q-pa-md">
-      <div style="max-width: 600px">
-        <q-tabs v-model="tab" align="justify" narrow-indicator class="q-mb-lg">
-          <q-tab class="text-purple" name="Repair" label="報修" />
-          <q-tab class="text-teal" name="Inquire" label="查詢" />
-        </q-tabs>
-
-        <div class="q-gutter-y-sm">
-          <q-tab-panels
-            v-model="tab"
-            animated
-            transition-prev="scale"
-            transition-next="scale"
-            class="text-center"
-          >
-            <q-tab-panel name="Repair">
-              <q-stepper v-model="step" vertical color="primary" animated>
-                <q-step
-                  :name="1"
-                  title="報修基本資料"
-                  icon="settings"
-                  :done="step > 1"
-                >
-                  <q-form
-                    @submit="onSubmit"
-                    @reset="onReset"
-                    class="q-gutter-md q-mt-md"
-                    autocorrect="off"
-                    autocapitalize="off"
-                    autocomplete="off"
-                    spellcheck="false"
-                    ref="formRef"
-                  >
-                    <div class="q-gutter-md">
-                      <q-input
-                        v-model="data.mobilePhone"
-                        label="手機"
-                        lazy-rules
-                        :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
-                        outlined
-                        class="col text-body1"
-                      />
-
-                      <q-input
-                        v-model="data.name"
-                        label="姓名"
-                        lazy-rules
-                        :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
-                        outlined
-                        class="text-body1"
-                      />
-
-                      <q-input
-                        v-model="data.companyPhone"
-                        label="公司電話"
-                        outlined
-                        class="text-body1"
-                      />
-                      <!-- @blur="checkRep" // 比對姓名是否重複輸入-->
-
-                      <!-- :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']" -->
-                      <q-input
-                        v-model="data.email"
-                        label="Email"
-                        lazy-rules
-                        outlined
-                      />
-                      <q-select
-                        class="text-body1"
-                        v-model="data.bureau"
-                        :options="bureaus"
-                        label="選擇局處"
-                        outlined
-                        ref="bureaus"
-                        popup-content-class="text-h6"
-                      />
-                      <q-select
-                        class="text-body1"
-                        v-model="data.department"
-                        :options="subDepartments"
-                        label="選擇科室"
-                        outlined
-                        clearable
-                        ref="department"
-                        popup-content-class="text-h6"
-                        v-show="subDepartments.length > 0"
-                      />
-                    </div>
-                  </q-form>
-
-                  <q-stepper-navigation>
-                    <q-btn @click="onSubmit()" color="primary" label="下一步" />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step
-                  :name="2"
-                  title="拍照-故障設備"
-                  caption=""
-                  icon="create_new_folder"
-                  :done="step > 2"
-                >
-                  請將故障設備，拍照上傳
-
-                  <q-stepper-navigation>
-                    <q-btn @click="step = 3" color="primary" label="下一步" />
-                    <q-btn
-                      flat
-                      @click="step = 1"
-                      color="primary"
-                      label="上一步"
-                      class="q-ml-sm"
-                    />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step
-                  :name="3"
-                  title="上傳檔案"
-                  caption=""
-                  icon="create_new_folder"
-                  :done="step > 3"
-                >
-                  An ad group contains one or more ads which target a shared set
-                  of keywords.
-
-                  <q-stepper-navigation>
-                    <q-btn @click="step = 4" color="primary" label="下一步" />
-                    <q-btn
-                      flat
-                      @click="step = 2"
-                      color="primary"
-                      label="放棄重來"
-                      class="q-ml-sm"
-                    />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step :name="4" title="完成報修" icon="add_comment">
-                  報修完成，請等候工程師聯絡。
-                  <q-stepper-navigation>
-                    <q-btn color="primary" label="完成" />
-                    <q-btn
-                      flat
-                      @click="step = 2"
-                      color="primary"
-                      label="繼續拍照"
-                      class="q-ml-sm"
-                    />
-                  </q-stepper-navigation>
-                </q-step>
-              </q-stepper>
-            </q-tab-panel>
-          </q-tab-panels>
-
-          <q-tab-panels
-            v-model="tab"
-            animated
-            transition-prev="jump-up"
-            transition-next="jump-down"
-            class="text-center"
-          >
-            <q-tab-panel name="Inquire">
-              <div class="text-h6">Movies</div>
-              Nostrum necessitatibus expedita dolores? Voluptatem repudiandae
-              magni ea.
-            </q-tab-panel>
-          </q-tab-panels>
-        </div>
-      </div>
-    </div>
-  </q-page>
+  <div class="q-ma-md">
+    <!-- List選項 -->
+    <q-list bordered separator>
+      <template v-for="item in RepairCases">
+        <q-item clickable v-ripple @click="gotoPageMessage(item.id)">
+          <q-item-section>
+            <q-item-label>報修日期：{{ item.CallRepairDateStr }}</q-item-label>
+            <!-- <q-item-label caption>{{ item.timestamp.toMillis() }}</q-item-label> -->
+            <q-item-label caption>{{ item.dateStr }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </template>
+    </q-list>
+    <!-- 新增報修案件 -->
+  </div>
 </template>
 
 <script>
+import { useRouter } from "vue-router";
 import {
   defineComponent,
   onMounted,
@@ -184,110 +27,158 @@ import {
   toRefs,
   watchEffect,
 } from "vue";
-
 import { useStore } from "vuex";
-
 import { uid, date, Notify, extend, useQuasar } from "quasar";
+import { showErrorMessage } from "src/utils/function-show-error-message";
 
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import { getFirebaseConfig } from "../utils/firebase-config";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+  doc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export default defineComponent({
-  name: "PageRepair",
-  setup() {
+  name: "RepairCase",
+
+  setup(props, context) {
+    const router = useRouter();
+    const $q = useQuasar();
     //---------- Vuex ----------
     const store = useStore();
-    const vuex = reactive({
-      bureaus: computed(() => {
-        return store.state.phrase.bureaus;
+    let vuex = reactive({
+      uid: computed(() => {
+        return store.state.auth.uid;
       }),
-      departments: computed(() => {
-        return store.state.phrase.departments;
+      username: computed(() => {
+        return store.state.auth.userName;
+      }),
+      maintain: computed(() => {
+        return store.state.auth.maintain;
       }),
     });
+
     //---------- data ----------
     const data = reactive({
-      dialogTab: true,
-      tab: "information",
-      dialogCassify: false,
-      step: 1,
-
-      data: {
-        mobilePhone: "",
-        name: "",
-        companyPhone: "",
-        email: "",
-        bureau: "",
-        department: "",
-      },
-    });
-    const $q = useQuasar();
-    const formRef = ref(null);
-
-    //=====找出已選局處的科室陣列=============
-    let thisIndex = -1; //記住局處陣列索引
-    let subDepartments = computed(() => {
-      let index = vuex.bureaus.indexOf(data.data.bureau);
-      if (thisIndex !== index) {
-        // 局處選擇改變時，科室的值要隨著清空
-        data.data.department = "";
-      }
-      thisIndex = index;
-      return vuex.departments[index] || []; //科室是二維陣列，第一維索引是局處索引值
+      RepairCases: [],
+      repairId: "",
     });
 
-    const blankData = extend(true, {}, data.data);
-
-    function onSubmit() {
-      // console.log(formRef.value.validate());
-      if (data.data.name.trim() === "" || data.data.mobilePhone.trim() === "") {
-        $q.dialog({
-          title: "錯誤",
-          message: "必填欄位不能空白",
-        });
-        return false;
+    onMounted(() => {
+      if (vuex.uid) {
+        // reload時，要確定vuex資料以正確讀入
+        if_repairCase();
       }
+    });
 
-      if (formRef.value.validate()) {
-        //寫入資料庫格式
-        let uuid = uid();
-        console.log(uuid);
-        data.data.id = uuid;
-        const payload = {
-          id: uuid,
-          data: {
-            ...data.data,
-          },
-        };
-        // 寫入資料庫
-        // $q.notify("存檔中...");
-        // store.dispatch("contacts/firestoreAddContacts", payload);
-        // 開啟上傳圖片視窗
-        // data.dialogTab = false;
+    //檢查是否有 報修案件 repairCase 資料
+    async function if_repairCase() {
+      if (vuex.maintain == "engineer") {
+        router.push("/engineer");
+        return;
+      }
+      try {
+        const q = query(
+          collection(getFirestore(), "repairCases"),
+          where("customerId", "==", vuex.uid)
+        );
+        const querySnapshot = await getDocs(q);
+        //此使用者沒有報修案件
+        console.log("報修案件", !querySnapshot.empty);
+        if (querySnapshot.empty) {
+          // 新增報修案件
+          await addRepairCase();
 
-        // 跳下一步
-        data.step = 2;
-      } else {
-        console.log("輸入資料有錯誤！");
+          //跳到首頁重新讀取資料，會讀到有報修案件
+          router.push("/");
+        } else {
+          //有報修案件
+          const arr = [];
+          querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            data.RepairCases = [doc.data()];
+            arr.push({
+              id: doc.id,
+              ...doc.data(),
+              CallRepairDateStr: date.formatDate(
+                doc.data().timestamp.toDate(),
+                "YYYY-MM-DD"
+              ),
+            });
+          });
+          data.RepairCases = arr;
+          //列出歷史報修List選項，
+          // 選擇 跳到 message 畫面
+          // 後續要完成，結案後，可新增報修案件
+        }
+      } catch (error) {
+        console.error("Firebase Database 錯誤", error);
       }
     }
-    function onReset() {
-      data.data = extend(true, {}, blankData);
+    //新增報修案件，新增message對話訊息
+    async function addRepairCase() {
+      $q.notify("存檔中...");
+      const payload = {
+        customerName: vuex.username,
+        customerId: vuex.uid,
+        CallRepairDate: serverTimestamp(), //叫修日期
+        DateOfCompletion: serverTimestamp(), //  完修日期
+        FailureCategory: "", //故障類別
+        ReplacementParts: "", //更換零件
+        FaultDescription: "", //故障描述
+        CauseOfIssue: "", //故障原因
+        ProcessingStatus: "", //處理狀況
+        Engineer: "", //工程師
+        timestamp: serverTimestamp(), //更新日期
+      };
+      // console.log("payload", payload);
+      try {
+        const collectionRef = collection(getFirestore(), "repairCases");
+        const docRef = await addDoc(collectionRef, payload);
+
+        //新增對話起始資料message，寫入資料庫
+        //讀取多層的collection
+        const subCollectionRef = collection(
+          getFirestore(),
+          "repairCases",
+          docRef.id,
+          "messages"
+        );
+
+        // 先插入一筆資料，工程師問候及提醒
+        await addDoc(subCollectionRef, {
+          label: date.formatDate(Date.now(), "YYYY年MM月DD日 HH:mm"),
+          name: "工程師",
+          text: ["嗨，您好", "請將設備問題描述或是拍照"],
+          timestamp: serverTimestamp(),
+        });
+      } catch (error) {
+        console.error("寫入資料庫失敗！", error);
+      }
+    }
+
+    function gotoPageMessage(cid) {
+      // 保存報修案件DocID，供PageMessage使用
+      store.commit("repaircase/setRepairCaseId", cid);
+      router.push("/message");
     }
 
     return {
       ...toRefs(vuex),
       ...toRefs(data),
-      tab: ref("Repair"),
-      formRef,
-      subDepartments,
-      onSubmit,
-      onReset,
+      gotoPageMessage,
     };
   },
 });
 </script>
-<style lang="sass">
-.q-tab__label
-  font-size: 1.5rem
-</style>

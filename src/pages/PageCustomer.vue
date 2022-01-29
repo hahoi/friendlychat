@@ -14,21 +14,21 @@
         <q-input
           v-model="customer.name"
           label="姓名"
-          lazy-rules
           :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
           outlined
           class="text-body1"
         />
 
         <q-input
-          v-model="customer.companyPhone"
-          label="公司電話"
+          v-model="customer.phoneNumber"
+          label="連絡電話"
+          :rules="[(val) => !!val || '* 這個欄位必須要輸入']"
           outlined
           class="text-body1"
         />
 
         <!-- :rules="[(val) => isValidEmailAddress(val) || '不合格式的 e-mail.']" -->
-        <q-input v-model="customer.email" label="Email" lazy-rules outlined />
+        <!-- <q-input v-model="customer.email" label="Email" lazy-rules outlined /> -->
         <q-select
           class="text-body1"
           v-model="customer.bureau"
@@ -131,8 +131,8 @@ export default defineComponent({
         // id: "",
         // mobilePhone: "",
         name: "",
-        companyPhone: "",
-        email: "",
+        phoneNumber: vuex.phoneNumber,
+        // email: "",
         bureau: "",
         department: "",
       },
@@ -163,6 +163,13 @@ export default defineComponent({
         });
         return false;
       }
+      if (data.customer.phoneNumber.trim() === "") {
+        $q.dialog({
+          title: "錯誤",
+          message: "聯絡電話不能空白",
+        });
+        return false;
+      }
 
       if (formRef.value.validate()) {
         const payload = {
@@ -173,18 +180,16 @@ export default defineComponent({
         };
         console.log(payload);
         // 寫入資料庫
-        $q.notify("存檔中...");
-        // console.log(getAuth().currentUser.uid);
+        $q.notify({ message: "存檔中...", timeout: 1000 });
         try {
           const costomerRef = doc(getFirestore(), "customers", vuex.uid);
           await setDoc(costomerRef, payload);
-          // router.push("/repair");
+          //客戶資料存檔後，跳到報修案件
+          store.commit("auth/setUserName", data.customer.name);
+          router.push("/repair");
         } catch (error) {
           console.error("寫入資料庫失敗！", error);
         }
-
-        // 跳下一步
-        // data.step = 2;
       } else {
         console.log("輸入資料有錯誤！");
       }

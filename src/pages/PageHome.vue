@@ -1,24 +1,14 @@
 <template>
   <q-page style="max-width: 600px; margin: auto">
-    <template v-if="addCustomer">
-      <h5 class="text-center">客戶聯絡資料</h5>
-      <!-- 新增客戶 -->
-      <add-customer />
-    </template>
-    <template v-else-if="hasCustomer">
-      <div class="q-ma-md text-h6 text-center">已報修的案件</div>
-      <repair-case />
-    </template>
-    <template v-else>
-      <div class="q-ma-md text-h6">
-        <q-spinner-cube size="xl" color="primary" />
-        {{ errorMag }}
-      </div>
-    </template>
+    <div class="q-ma-md text-h6 flex justify-center">
+      <q-spinner-cube size="xl" color="primary" />
+    </div>
   </q-page>
 </template>
 
 <script>
+import { useRouter } from "vue-router";
+
 import {
   defineComponent,
   onMounted,
@@ -51,12 +41,10 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 export default defineComponent({
   name: "",
   props: {},
-  components: {
-    AddCustomer: require("components/AddCustomer.vue").default,
-    RepairCase: require("components/RepairCase.vue").default,
-  },
+  components: {},
   emits: [""],
   setup(props, context) {
+    const router = useRouter();
     const $q = useQuasar();
     //---------- Vuex ----------
     const store = useStore();
@@ -90,17 +78,16 @@ export default defineComponent({
       try {
         const docRef = doc(getFirestore(), "customers", uid);
         const docSnap = await getDoc(docRef);
+        // customers存在
         if (docSnap.exists()) {
-          console.log("customers存在，檢查是否有報修資料");
-          data.hasCustomer = true;
+          // console.log("檢查是否有報修資料");
+          router.push("/repair");
         } else {
-          console.log("customers不存在，跳到新增畫面，新增customer");
-          data.addCustomer = true;
+          //customers不存在，
+          // console.log("跳到新增畫面，新增customer");
+          router.push("/customer");
         }
-      } catch (error) {
-        console.error("Firebase Database 錯誤", error);
-        data.errorMag = "查不到客戶資料，請登出，重新驗證登入。";
-      }
+      } catch (error) {}
       // Loading.hide();
     }
 

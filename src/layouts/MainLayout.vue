@@ -21,8 +21,8 @@
           資訊設備報修系統
         </q-toolbar-title>
         <q-space />
-        <div v-if="uid" class="col-1">
-          <q-btn round @click="singout()" label="登出" />
+        <div v-if="uid" class="">
+          <q-btn round color="info" @click="singout()" label="登出" />
         </div>
 
         <!--  -->

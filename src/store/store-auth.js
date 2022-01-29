@@ -64,6 +64,7 @@ const state = {
 	phoneNumber: "",
 	uid: "",
 	userName: "",
+	maintain: "",
 	// loggedIn: false,
 }
 
@@ -80,6 +81,9 @@ const mutations = {
 	setUserName (state, value) {
 		state.userName = value
 	},
+	setMaintain (state, value) {
+		state.maintain = value
+	},
 }
 
 const actions = {
@@ -87,6 +91,8 @@ const actions = {
 		// commit('setUID', null)
 		signOut(getAuth())
 	},
+
+
 	ListenAuthStateChange ({ state, commit, dispatch }) {
 		// signOut(getAuth())
 		// 監聽 Listen to auth state changes.
@@ -94,24 +100,28 @@ const actions = {
 			// console.log(user.uid)
 			if (user) {
 				// console.log(JSON.stringify(user, null, '  '))
-				// console.log(user)
+				// console.log(user.providerData)
+				// console.log(user.providerData[0].providerId)
 				// metadata:{
 				//   createdAt: "1642142013574"
 				//   creationTime: "Fri, 14 Jan 2022 06:33:33 GMT"
 				//   lastLoginAt: "1642576219995"
 				//   lastSignInTime: "Wed, 19 Jan 2022 07:10:19 GMT"
 				// }
+				// 判斷是否是工程師登入
 
+				// 若是用電話號碼登入，將國際電話改為國內電話
+				if (user.providerData[0].providerId == 'phone') {
+					commit('setPhoneNumber', "0" + user.phoneNumber.slice(4, 14))
+				}
 
 				commit('setUID', user.uid)
-				commit('setPhoneNumber', user.phoneNumber)
-				dispatch('getCustomerById', user.uid)
 				LocalStorage.set('loggedIn', true)
+				//從這裡進到 首頁
+				dispatch('getCustomerById', user.uid)
 
-				// saveMessagingDeviceToken();
 
-				//從這裡進到 index.vue
-				this.$router.replace('/').catch(err => { })
+				// saveMessagingDeviceToken();				
 
 			} else {
 				console.log("使用者沒有登入")
@@ -135,15 +145,28 @@ const actions = {
 	//讀出customer資料
 	async getCustomerById ({ state, commit, dispatch }, docUid) {
 		try {
-			console.log("docUid", docUid);
+			// console.log("docUid", docUid);
 			const docRef = doc(getFirestore(), "customers", docUid);
 			const docSnap = await getDoc(docRef);
 
 			if (docSnap.exists()) {
-				console.log("Document data:", docSnap.data());
-				commit('setUserName', docSnap.data().name)
+				// 讀出customer資料，設定username
+				let name = docSnap.data().name
+				let maintain = docSnap.data().maintain
+				commit('setUserName', name)
+				commit('setMaintain', maintain)
+
+				if (state.maintain == "engineer") {
+					this.$router.replace('/engineer').catch(err => { })
+				} else if (maintain == "admin") {
+					this.$router.replace('/admin').catch(err => { })
+				}
+				else {
+					this.$router.replace('/').catch(err => { })
+				}
 			} else {
-				console.log("No such document!");
+				console.log("還沒建立使用者資料！");
+				this.$router.replace('/').catch(err => { })
 			}
 		} catch (error) {
 			console.error("Firestore 錯誤", error);
